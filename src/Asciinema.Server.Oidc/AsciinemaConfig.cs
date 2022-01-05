@@ -1,6 +1,6 @@
 namespace Asciinema.Server.Oidc
 {
-    internal class AsciinemaConfig
+    public class AsciinemaConfig
     {
         public string Secret { get; set; }
     }
