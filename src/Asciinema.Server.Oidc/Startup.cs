@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,6 +51,10 @@ namespace Asciinema.Server.Oidc
 
             services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(connString));
 
+            services.Configure<ForwardedHeadersOptions>(opts => {
+                opts.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
+
             services.AddAuthentication(opts => {
                 opts.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 opts.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
@@ -71,6 +76,7 @@ namespace Asciinema.Server.Oidc
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseForwardedHeaders();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
