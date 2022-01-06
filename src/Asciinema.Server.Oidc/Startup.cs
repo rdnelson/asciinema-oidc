@@ -52,7 +52,9 @@ namespace Asciinema.Server.Oidc
             services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(connString));
 
             services.Configure<ForwardedHeadersOptions>(opts => {
-                opts.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                opts.ForwardedHeaders = ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor;
+                opts.KnownNetworks.Clear();
+                opts.KnownProxies.Clear();
             });
 
             services.AddAuthentication(opts => {
