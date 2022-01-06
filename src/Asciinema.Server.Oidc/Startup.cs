@@ -50,7 +50,10 @@ namespace Asciinema.Server.Oidc
 
             Console.WriteLine($"Connecting to database: {dbConfig.Host}");
 
-            services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(connString));
+            services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(connString)
+                {
+                    UserCertificateValidationCallback = dbConfig.DisableSslVerification ? (_, __, ___, ____) => true : null,
+                });
 
             services.Configure<ForwardedHeadersOptions>(opts => {
                 opts.ForwardedHeaders = ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor;

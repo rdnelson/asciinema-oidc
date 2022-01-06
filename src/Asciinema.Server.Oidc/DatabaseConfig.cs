@@ -10,6 +10,8 @@ namespace Asciinema.Server.Oidc
 
         public string Database { get; set; } = "postgres";
 
+        public bool DisableSslVerification { get; set; } = false;
+
         public string ConnectionString { get; set; }
     }
 }
