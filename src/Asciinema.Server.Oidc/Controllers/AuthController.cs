@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Asciinema.Server.Oidc.Controllers
@@ -19,8 +20,9 @@ namespace Asciinema.Server.Oidc.Controllers
     {
         private readonly IOptionsSnapshot<AsciinemaConfig> _asciinemaConfig;
         private readonly IDbConnection _connection;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IDbConnection connection, IOptionsSnapshot<AsciinemaConfig> asciinemaConfig)
+        public AuthController(IDbConnection connection, IOptionsSnapshot<AsciinemaConfig> asciinemaConfig, ILogger<AuthController> logger)
         {
             _connection = connection;
 
@@ -30,6 +32,7 @@ namespace Asciinema.Server.Oidc.Controllers
             }
 
             _asciinemaConfig = asciinemaConfig;
+            _logger = logger;
         }
 
         [Authorize]
@@ -54,14 +57,14 @@ namespace Asciinema.Server.Oidc.Controllers
                 using var row = cmd.ExecuteReader();
                 if (row.Read())
                 {
-                    Console.WriteLine("User exists");
+                    _logger.LogDebug("User exists");
                     var id = row.GetInt32(0);
                     var lastLogin = row.GetDateTime(1);
                     return await Login(id, lastLogin);
                 }
                 else
                 {
-                    Console.WriteLine("Creating user");
+                    _logger.LogDebug("Creating user");
                     return await Signup(email);
                 }
             }
@@ -123,6 +126,7 @@ namespace Asciinema.Server.Oidc.Controllers
 
         public async Task<string> GetLink(string op, byte[] payload)
         {
+            _logger.LogDebug($"Using secret of {_asciinemaConfig.Value.Secret.Length} bytes.");
             var key = KeyDerivation.Pbkdf2(_asciinemaConfig.Value.Secret, Encoding.UTF8.GetBytes(op), KeyDerivationPrf.HMACSHA256, 1000, 32);
             var hmac = new HMACSHA256(key);
 
