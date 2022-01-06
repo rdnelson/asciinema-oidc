@@ -45,6 +45,7 @@ namespace Asciinema.Server.Oidc
                     Database = dbConfig.Database,
                     Username = dbConfig.User,
                     Password = dbConfig.Password,
+                    SslMode = SslMode.Prefer,
                 }.ConnectionString;
 
             Console.WriteLine($"Connecting to database: {dbConfig.Host}");
