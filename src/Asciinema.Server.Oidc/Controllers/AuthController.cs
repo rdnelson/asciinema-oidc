@@ -130,7 +130,7 @@ namespace Asciinema.Server.Oidc.Controllers
             var key = KeyDerivation.Pbkdf2(_asciinemaConfig.Value.Secret, Encoding.UTF8.GetBytes(op), KeyDerivationPrf.HMACSHA256, 1000, 32);
             var hmac = new HMACSHA256(key);
 
-            var data = ToBase64("HS256") + ToBase64(payload).Replace("=", string.Empty);
+            var data = ToBase64("HS256") + "." + ToBase64(payload).Replace("=", string.Empty);
             var binData = Encoding.ASCII.GetBytes(data);
 
             var sig = await hmac.ComputeHashAsync(new MemoryStream(binData));
